@@ -12,6 +12,7 @@ type
     class function ConCat(Value: array of string; const ADelim: string): string;
     class function SecondsAsTime(const ASeconds: Int64): string;
     class function IsEmailValid(const Value: string): Boolean;
+    class function IsNumber(const Value: string): Boolean;
   end;
 
 const
@@ -27,6 +28,11 @@ const
   key_right = 39;
   key_down = 40;
   smWordDelimiters: array of Char = [' ', ';', ':', ',', ',', ')', '-', #10, #13, #160];
+
+  //FontAwesome Icons for Toasts
+  FA_AnyOld_Icon = 'far fa-dot-circle';
+  FA_Saved_Icon = 'fas fa-save';
+
 
 implementation
 
@@ -119,6 +125,13 @@ begin
 
   result := CheckAllowed(namePart) and CheckAllowed(serverPart);
 
+end;
+
+class function TWebUtils.IsNumber(const Value: string): Boolean;
+var
+  v: Double;
+begin
+  result := TryStrToFloat(Value, v);
 end;
 
 class function TWebUtils.SecondsAsTime(const ASeconds: Int64): string;
