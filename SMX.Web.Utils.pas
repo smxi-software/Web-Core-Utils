@@ -11,8 +11,8 @@ type
     class function CapitaliseWords(const Value: string): string;
     class function ConCat(Value: array of string; const ADelim: string): string;
     class function SecondsAsTime(const ASeconds: Int64): string;
-    class function IsEmailValid(const Value: string): Boolean;
     class function IsNumber(const Value: string): Boolean;
+    class function IsInteger(const Value: string): Boolean;
   end;
 
 const
@@ -82,49 +82,11 @@ begin
   result := result.Substring(0, result.Length - ADelim.Length);
 end;
 
-class function TWebUtils.IsEmailValid(const Value: string): Boolean;
-  function CheckAllowed(const s: string): Boolean;
-  var
-    i: Integer;
-  begin
-    result := False;
-    for i := 1 to Length(s) do
-    begin
-      // illegal char - no valid address
-      if not(s[i] in ['a' .. 'z', 'A' .. 'Z', '0' .. '9', '_', '-', '.', '+']) then
-        Exit;
-    end;
-    result := True;
-  end;
-
+class function TWebUtils.IsInteger(const Value: string): Boolean;
 var
-  i: Integer;
-  namePart, serverPart: string;
+  v: Integer;
 begin
-  result := False;
-
-  i := Pos('@', Value);
-  if (i = 0) then
-    Exit;
-
-  if (Pos('..', Value) > 0) or (Pos('@@', Value) > 0) or (Pos('.@', Value) > 0) then
-    Exit;
-
-  if (Pos('.', Value) = 1) or (Pos('@', Value) = 1) then
-    Exit;
-
-  namePart := Copy(Value, 1, i - 1);
-  serverPart := Copy(Value, i + 1, Length(Value));
-  if (Length(namePart) = 0) or (Length(serverPart) < 5) then
-    Exit; // too short
-
-  i := Pos('.', serverPart);
-  // must have dot and at least 3 places from end
-  if (i = 0) or (i > (Length(serverPart) - 2)) then
-    Exit;
-
-  result := CheckAllowed(namePart) and CheckAllowed(serverPart);
-
+  result := TryStrToInt(Value, v);
 end;
 
 class function TWebUtils.IsNumber(const Value: string): Boolean;
