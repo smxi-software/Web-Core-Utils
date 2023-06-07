@@ -23,6 +23,8 @@ type
     class procedure removeClass(const aElementId: string; const AClassName: string);
     class procedure setControlValidity(const aElementId: string; const aState: TwebValidityState);
     class procedure hideElement(const aElementId: string);
+    class procedure showElement(const aElementId: string);
+
     class function elementHeight(const aElementId: string): integer;
     class function elementWidth(const aElementId: string): integer;
     class procedure writeHTML(const aElementId: string; const Value: string);
@@ -59,9 +61,11 @@ const
 
 class procedure TDocUtils.addClass(const aElementId, AClassName: string);
 begin
+  {$IFDEF PAS2JS}
   asm
     $("#" + aElementId).addClass(AClassName);
   end;
+  {$ENDIF}
 end;
 
 class procedure TDocUtils.addCSSFile(const aFileURL: string);
@@ -69,6 +73,7 @@ begin
   if isCSSLinked(aFileURL) then
     Exit;
 
+  {$IFDEF PAS2JS}
   asm
     var link = document.createElement('link');
 
@@ -83,6 +88,7 @@ begin
     // link element to it
     document.getElementsByTagName('HEAD')[0].appendChild(link);
   end;
+  {$ENDIF}
 end;
 
 class procedure TDocUtils.addScriptFile(const aFileURL: string);
@@ -94,62 +100,77 @@ end;
 
 class procedure TDocUtils.appendHTML(const aElementId, Value: string);
 begin
+  {$IFDEF PAS2JS}
   asm
     var Doc = document.getElementById(aElementId);
     if (Doc !== null) {
     Doc.innerHTML += Value;
      }
   end;
+  {$ENDIF}
 end;
 
 class function TDocUtils.elementHeight(const aElementId: string): integer;
 begin
+  {$IFDEF PAS2JS}
   asm
     Result = parseInt($("#" + aElementId).height());
   end;
+  {$ENDIF}
 end;
 
 class function TDocUtils.elementIdExists(const aElementId: string): Boolean;
 begin
+  {$IFDEF PAS2JS}
   asm
     return (document.getElementById("#" + aElementId) !== null);
   end;
+  {$ENDIF}
 end;
 
 class function TDocUtils.elementWidth(const aElementId: string): integer;
 begin
+  {$IFDEF PAS2JS}
   asm
     Result = parseInt($("#" + aElementId).width());
   end;
+  {$ENDIF}
 end;
 
 class procedure TDocUtils.emptyDiv(const aElementId: string);
 begin
+  {$IFDEF PAS2JS}
   asm
     var Doc = document.getElementById(aElementId);
     if (Doc !== null) {
     Doc.innerHTML = "";
      }
   end;
+  {$ENDIF}
 end;
 
 class procedure TDocUtils.hideElement(const aElementId: string);
 begin
+  {$IFDEF PAS2JS}
   asm
     $("#" + aElementId).hide();
   end;
+  {$ENDIF}
 end;
 
 class function TDocUtils.isCSSLinked(const aFileURL: string): Boolean;
 begin
+  {$IFDEF PAS2JS}
   asm
     var linkEl = document.head.querySelector('link[href*="' + aFileURL + '"]');
     return Boolean(linkEl.sheet);
   end;
+  {$ENDIF}
 end;
 
 class function TDocUtils.isScriptLinked(const aFileURL: string): Boolean;
 begin
+  {$IFDEF PAS2JS}
   asm
     const found_in_resources = performance.getEntries()
     .filter(e => e.entryType === 'resource')
@@ -158,20 +179,25 @@ begin
     const found_in_script_tags = document.querySelectorAll(`script[src*="${ src }"]`).length > 0;
     return found_in_resources || found_in_script_tags;
   end;
+  {$ENDIF}
 end;
 
 class procedure TDocUtils.loadHTML(const aElementId, URL: string);
 begin
+  {$IFDEF PAS2JS}
   asm
     $("#" + aElementId).load(URL);
   end;
+  {$ENDIF}
 end;
 
 class procedure TDocUtils.removeClass(const aElementId, AClassName: string);
 begin
+  {$IFDEF PAS2JS}
   asm
     $("#" + aElementId).removeClass(AClassName);
   end;
+  {$ENDIF}
 end;
 
 class procedure TDocUtils.setControlValidity(const aElementId: string; const aState: TwebValidityState);
@@ -193,12 +219,23 @@ var
   lInputType: string;
 begin
   lInputType := input_type_map[aInputType];
+  {$IFDEF PAS2JS}
   asm
     const element = document.getElementById(aElementId);
     if (element.tagName.toLowerCase() === 'input') {
        Document.getElementById(aElementId).type = lInputType;
     };
   end;
+  {$ENDIF}
+end;
+
+class procedure TDocUtils.showElement(const aElementId: string);
+begin
+  {$IFDEF PAS2JS}
+  asm
+    $("#" + aElementId).show();
+  end;
+  {$ENDIF}
 end;
 
 class function TDocUtils.stringsToUL(AStrings: TStrings; const AListClass: string = '';
@@ -227,9 +264,11 @@ end;
 
 class procedure TDocUtils.writeHTML(const aElementId, Value: string);
 begin
+  {$IFDEF PAS2JS}
   asm
     $("#" + aElementId).html(Value);
   end;
+  {$ENDIF}
 end;
 
 end.

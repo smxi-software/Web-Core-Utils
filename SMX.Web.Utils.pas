@@ -4,6 +4,8 @@ interface
 
 type
 
+  TsmxCheckStatus = (csNotChecked, csFailed, csOk);
+
   TWebUtils = class
   public
     class function SplitOnCaps(const Value: string): string;
@@ -51,8 +53,6 @@ end;
 
 class function TWebUtils.CapitaliseWords(const Value: string): string;
 var
-  i: Integer;
-  c, lc: Char;
   lWord: string;
   lWords: TArray<string>;
 begin

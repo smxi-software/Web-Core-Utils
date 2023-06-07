@@ -18,22 +18,29 @@ type
     /// fa-lg"&gt;&lt;/i&gt;'
     /// </param>
     class function RowActionSpan(const AParentElement: TJSHTMLElement; const AFontAwesomeClass: string;
-      const HorizontalFlip: Boolean = False): TWebHTMLSpan;
+      const AToolTip: string; const HorizontalFlip: Boolean = False): TWebHTMLSpan;
   end;
 
 implementation
 
 { TLayoutUtils }
 
-class function TLayoutUtils.RowActionSpan(const AParentElement: TJSHTMLElement; const AFontAwesomeClass: string;
-  const HorizontalFlip: Boolean): TWebHTMLSpan;
+class function TLayoutUtils.RowActionSpan(const AParentElement: TJSHTMLElement;
+    const AFontAwesomeClass: string; const AToolTip: string; const
+    HorizontalFlip: Boolean = False): TWebHTMLSpan;
 var
-  lFlip: string;
+  lFlip, lTip: string;
 begin
+  if AToolTip = '' then
+     lTip := ''
+  else
+     lTip := format(' title="%s"', [AToolTip]);
+
   if HorizontalFlip then
     lFlip := ' fa-flip-horizontal'
   else
     lFlip := '';
+
   result := TWebHTMLSpan.Create(nil);
   result.Cursor := crHandPoint;
   result.ElementPosition := epIgnore;
@@ -43,7 +50,7 @@ begin
   if AFontAwesomeClass.StartsWith('<') then
     result.HTML.Text := AFontAwesomeClass
   else
-    result.HTML.Text := format('<i class="%s fa-fw fa-lg%s"></i> ', [AFontAwesomeClass, lFlip]);
+    result.HTML.Text := format('<i class="%s fa-fw fa-lg%s"%s></i> ', [AFontAwesomeClass, lFlip, lTip]);
 end;
 
 end.
