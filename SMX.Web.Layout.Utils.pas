@@ -18,7 +18,7 @@ type
     /// fa-lg"&gt;&lt;/i&gt;'
     /// </param>
     class function RowActionSpan(const AParentElement: TJSHTMLElement; const AFontAwesomeClass: string;
-      const AToolTip: string; const HorizontalFlip: Boolean = False): TWebHTMLSpan;
+      const AToolTip: string = ' '; const HorizontalFlip: Boolean = False): TWebHTMLSpan;
   end;
 
 implementation
@@ -26,7 +26,7 @@ implementation
 { TLayoutUtils }
 
 class function TLayoutUtils.RowActionSpan(const AParentElement: TJSHTMLElement;
-    const AFontAwesomeClass: string; const AToolTip: string; const
+    const AFontAwesomeClass: string; const AToolTip: string = ' '; const
     HorizontalFlip: Boolean = False): TWebHTMLSpan;
 var
   lFlip, lTip: string;
