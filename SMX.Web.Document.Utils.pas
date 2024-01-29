@@ -39,6 +39,8 @@ type
     class function isScriptLinked(const aFileURL: string): Boolean;
     class procedure addScriptFile(const aFileURL: string);
 
+    class procedure writeImageSrc(const aElementId, aImageURL: string);
+
   end;
 
 const
@@ -267,6 +269,16 @@ begin
   {$IFDEF PAS2JS}
   asm
     $("#" + aElementId).html(Value);
+  end;
+  {$ENDIF}
+end;
+
+class procedure TDocUtils.writeImageSrc(const aElementId, aImageURL: string);
+begin
+  {$IFDEF PAS2JS}
+  asm
+   var img
+   $("#" + aElementId).attr("src", aImageURL);
   end;
   {$ENDIF}
 end;
