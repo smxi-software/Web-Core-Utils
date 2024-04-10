@@ -35,7 +35,12 @@ type
     class procedure setInputType(const aElementId: string; const aInputType: TwebInputType);
 
     class function isCSSLinked(const aFileURL: string): Boolean;
+    /// <summary>
+    ///   The TMS WebCore Application object now has InsertCSS and RemoveCSS,
+    ///   so probably better to move to that
+    /// </summary>
     class procedure addCSSFile(const aFileURL: string);
+
     class function isScriptLinked(const aFileURL: string): Boolean;
     class procedure addScriptFile(const aFileURL: string);
 
@@ -49,7 +54,8 @@ Valid_Check: Array[Boolean] of  TwebValidityState = (vsInvalid, vsValid);
 implementation
 
 uses
-  System.Rtti;
+  System.Rtti,
+  WebLib.Forms;
 
 const
 
@@ -60,6 +66,8 @@ const
     'text', 'time', 'url', 'week');
 
   { THTMLHelper }
+
+{$HINTS OFF}
 
 class procedure TDocUtils.addClass(const aElementId, AClassName: string);
 begin
@@ -283,4 +291,5 @@ begin
   {$ENDIF}
 end;
 
+{$HINTS ON}
 end.
