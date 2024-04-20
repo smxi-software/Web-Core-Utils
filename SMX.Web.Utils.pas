@@ -15,6 +15,9 @@ type
     class function SecondsAsTime(const ASeconds: Int64): string;
     class function IsNumber(const Value: string): Boolean;
     class function IsInteger(const Value: string): Boolean;
+    class function DayWithOrdinal(const Value: Word): string; overload;
+    class function DayWithOrdinal(const ADate: TDateTime): string; overload;
+    class function PrettyDate(const ADate: TDateTime; const AddYear: Boolean = False): string;
   end;
 
 const
@@ -31,10 +34,9 @@ const
   key_down = 40;
   smWordDelimiters: array of Char = [' ', ';', ':', ',', ',', ')', '-', #10, #13, #160];
 
-  //FontAwesome Icons for Toasts
+  // FontAwesome Icons for Toasts
   FA_AnyOld_Icon = 'far fa-dot-circle';
   FA_Saved_Icon = 'fas fa-save';
-
 
 implementation
 
@@ -82,6 +84,25 @@ begin
   result := result.Substring(0, result.Length - ADelim.Length);
 end;
 
+class function TWebUtils.DayWithOrdinal(const Value: Word): string;
+begin
+ case Value of
+    1:
+      result := '1st';
+    2:
+      result := '2nd';
+    3:
+      result := '3rd';
+  else
+    result := Value.ToString + 'th';
+  end;
+end;
+
+class function TWebUtils.DayWithOrdinal(const ADate: TDateTime): string;
+begin
+    result := DayWithOrdinal(DayOf(ADate));
+end;
+
 class function TWebUtils.IsInteger(const Value: string): Boolean;
 var
   v: Integer;
@@ -94,6 +115,14 @@ var
   v: Double;
 begin
   result := TryStrToFloat(Value, v);
+end;
+
+class function TWebUtils.PrettyDate(const ADate: TDateTime;
+  const AddYear: Boolean): string;
+begin
+  Result := DayWithOrdinal(ADate) + ' ' + FormatSettings.ShortMonthNames[MonthOf(ADate)];
+  if AddYear then
+     Result := Result + ' ' + YearOf(ADate).ToString;
 end;
 
 class function TWebUtils.SecondsAsTime(const ASeconds: Int64): string;
