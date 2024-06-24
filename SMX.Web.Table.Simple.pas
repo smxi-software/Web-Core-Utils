@@ -14,16 +14,18 @@ type
   TsmwSimpleTable = class
   private
     FTableClass: string;
+    FTableId: string;
     FCols: Integer;
     FRows: Integer;
     FData: TObjectList<TBodyData>;
     FTitles: TStrings;
     FTitle: string;
     function GetTableClass: string;
+    function GetTableId: string;
     function GetCell(const ARow, ACol: Integer): string;
     procedure SetCell(const ARow, ACol: Integer; const Value: string);
   public
-    constructor Create(const ARows, ACols: Integer; ATableClass: string);
+    constructor Create(const ARows, ACols: Integer; const ATableId,ATableClass: string);
     destructor Destroy; override;
     function Table: string;
     procedure AddCell(const ARow, ACol: Integer; const AData: string);
@@ -33,6 +35,7 @@ type
   end;
 
 implementation
+
 
 { TsmwSimpleTable }
 
@@ -45,7 +48,8 @@ begin
   lBodyData[ACol] := AData;
 end;
 
-constructor TsmwSimpleTable.Create(const ARows, ACols: Integer; ATableClass: string);
+constructor TsmwSimpleTable.Create(const ARows, ACols: Integer; const ATableId,
+    ATableClass: string);
 var
   I, J: Integer;
   lBodyData: TBodyData;
@@ -53,6 +57,7 @@ begin
   FRows := ARows;
   FCols := ACols;
   FTableClass := ATableClass;
+  FTableId := ATableId;
   FTitles := TStringList.Create;
   FData := TObjectList<TBodyData>.Create(True);
   for I := 0 to FRows - 1 do
@@ -83,7 +88,15 @@ begin
   if FTableClass <> '' then
     Result := ' ' + FTableClass
   else
-    Result := FTableClass;
+    Result := '';
+end;
+
+function TsmwSimpleTable.GetTableId: string;
+begin
+  if FTableId <> '' then
+     Result := ' id="' + FTableId + '"'
+  else
+     Result := '';
 end;
 
 procedure TsmwSimpleTable.SetCell(const ARow, ACol: Integer; const Value: string);
@@ -100,7 +113,7 @@ var
   J: Integer;
   lBodyData: TBodyData;
 begin
-  Result := '<table class="smwtable' + GetTableClass + '">'#10;
+  Result := '<table' + GetTableId + ' class="smwtable' + GetTableClass + '">'#10;
 
   if FTitle <> '' then
     Result := Result + '<caption>' + FTitle + '</caption>'#10;
@@ -111,7 +124,7 @@ begin
     for I := 0 to FCols - 1 do
     begin
       if (FTitles.Count >= I + 1) then
-        Result := Result + '<th>' + FTitles[I] + '</th>'
+        Result := Result + format('<th class="th-col-%d">%s</th>', [I, FTitles[I]])
       else
         Result := Result + '<th></th>';
     end;
@@ -126,7 +139,7 @@ begin
     lBodyData := FData[I];
     for J := 0 to FCols - 1 do
     begin
-      Result := Result + '<td>' + lBodyData[J] + '</td>';
+      Result := Result + format('<td class="td-col-%d">%s</td>', [J, lBodyData[J]]);
     end;
     Result := Result + '</tr>'#10;
   end;

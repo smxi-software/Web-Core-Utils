@@ -18,7 +18,11 @@ type
     class function DayWithOrdinal(const Value: Word): string; overload;
     class function DayWithOrdinal(const ADate: TDateTime): string; overload;
     class function PrettyDate(const ADate: TDateTime; const AddYear: Boolean = False): string;
+    class function PrettyDateRange(const FromDate, ToDate: TDateTime; const
+        AddYear: Boolean = True; const ToText: string = 'to'): string;
   end;
+
+  function IncResult(var Value: Integer; const increment: integer = 1): Integer;
 
 const
   YesNo: array [Boolean] of string = ('No', 'Yes');
@@ -43,6 +47,12 @@ implementation
 uses
   System.SysUtils,
   System.DateUtils;
+
+function IncResult(var Value: Integer; const increment: integer = 1): Integer;
+begin
+  Inc(Value, increment);
+  Result := Value;
+end;
 
 { TWebUtils }
 
@@ -86,13 +96,13 @@ end;
 
 class function TWebUtils.DayWithOrdinal(const Value: Word): string;
 begin
- case Value of
-    1:
-      result := '1st';
-    2:
-      result := '2nd';
-    3:
-      result := '3rd';
+  case Value of
+    1, 21, 31:
+      result := Value.ToString + 'st';
+    2, 22:
+      result := Value.ToString + 'nd';
+    3, 23:
+      result := Value.ToString + 'rd';
   else
     result := Value.ToString + 'th';
   end;
@@ -100,7 +110,7 @@ end;
 
 class function TWebUtils.DayWithOrdinal(const ADate: TDateTime): string;
 begin
-    result := DayWithOrdinal(DayOf(ADate));
+  result := DayWithOrdinal(DayOf(ADate));
 end;
 
 class function TWebUtils.IsInteger(const Value: string): Boolean;
@@ -117,12 +127,40 @@ begin
   result := TryStrToFloat(Value, v);
 end;
 
-class function TWebUtils.PrettyDate(const ADate: TDateTime;
-  const AddYear: Boolean): string;
+class function TWebUtils.PrettyDate(const ADate: TDateTime; const AddYear: Boolean): string;
 begin
-  Result := DayWithOrdinal(ADate) + ' ' + FormatSettings.ShortMonthNames[MonthOf(ADate)];
+  result := DayWithOrdinal(ADate) + ' ' + FormatSettings.ShortMonthNames[MonthOf(ADate)];
   if AddYear then
-     Result := Result + ' ' + YearOf(ADate).ToString;
+    result := result + ' ' + YearOf(ADate).ToString;
+end;
+
+class function TWebUtils.PrettyDateRange(const FromDate, ToDate: TDateTime;
+  const AddYear: Boolean; const ToText: string): string;
+var FY,FM,FD, TY,TM,TD: Word;
+begin
+  DecodeDate(FromDate, FY,FM,FD);
+  DecodeDate(ToDate, TY,TM,TD);
+
+  if FY = TY then
+  begin
+    Result := DayWithOrdinal(FD) + ' ';
+    if FM = TM then
+       Result := Result + ToText + ' ' + DayWithOrdinal(TD) + ' ' + FormatSettings.LongMonthNames[TM]
+    else
+       Result := Result + FormatSettings.LongMonthNames[FM] + ' ' + ToText + ' ' +
+          DayWithOrdinal(TD) + ' ' + FormatSettings.LongMonthNames[TM];
+
+    if AddYear then
+       Result := Result + ' ' + TY.ToString;
+
+
+  end
+  else
+  begin
+    Result := DayWithOrdinal(FD) + ' ' + FormatSettings.LongMonthNames[FM] + ' ' +
+      FY.ToString + ' ' + ToText + ' ' + DayWithOrdinal(TD) + ' ' + FormatSettings.LongMonthNames[TM] + ' ' +
+      TY.ToString;
+  end;
 end;
 
 class function TWebUtils.SecondsAsTime(const ASeconds: Int64): string;
