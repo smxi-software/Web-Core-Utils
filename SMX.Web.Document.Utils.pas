@@ -50,6 +50,7 @@ type
 
 const
 Valid_Check: Array[Boolean] of  TwebValidityState = (vsInvalid, vsValid);
+Alt_Valid_Check: Array[Boolean] of  TwebValidityState = (vsInvalid, vsNone);
 
 implementation
 
@@ -220,7 +221,8 @@ begin
       removeClass(aElementId, validity_class_map[lState]);
   end;
 
-  addClass(aElementId, validity_class_map[aState]);
+  if aState <> TwebValidityState.vsNone then
+     addClass(aElementId, validity_class_map[aState]);
 
 end;
 

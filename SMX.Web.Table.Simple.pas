@@ -9,6 +9,13 @@ uses
 
 type
 
+  // TsmCell = record
+  // Data: string;
+  // ClassNames: string;
+  // end;
+  //
+  //TBodyData = class(TList<TsmCell>);
+
   TBodyData = class(TList<string>);
 
   TsmwSimpleTable = class
@@ -25,7 +32,7 @@ type
     function GetCell(const ARow, ACol: Integer): string;
     procedure SetCell(const ARow, ACol: Integer; const Value: string);
   public
-    constructor Create(const ARows, ACols: Integer; const ATableId,ATableClass: string);
+    constructor Create(const ARows, ACols: Integer; const ATableId, ATableClass: string);
     destructor Destroy; override;
     function Table: string;
     procedure AddCell(const ARow, ACol: Integer; const AData: string);
@@ -35,7 +42,6 @@ type
   end;
 
 implementation
-
 
 { TsmwSimpleTable }
 
@@ -48,8 +54,7 @@ begin
   lBodyData[ACol] := AData;
 end;
 
-constructor TsmwSimpleTable.Create(const ARows, ACols: Integer; const ATableId,
-    ATableClass: string);
+constructor TsmwSimpleTable.Create(const ARows, ACols: Integer; const ATableId, ATableClass: string);
 var
   I, J: Integer;
   lBodyData: TBodyData;
@@ -94,9 +99,9 @@ end;
 function TsmwSimpleTable.GetTableId: string;
 begin
   if FTableId <> '' then
-     Result := ' id="' + FTableId + '"'
+    Result := ' id="' + FTableId + '"'
   else
-     Result := '';
+    Result := '';
 end;
 
 procedure TsmwSimpleTable.SetCell(const ARow, ACol: Integer; const Value: string);

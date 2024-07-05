@@ -26,6 +26,8 @@ type
 
 const
   YesNo: array [Boolean] of string = ('No', 'Yes');
+  YesNoIdx: array [Boolean] of integer = (0, 1);
+
   SYS_DATE_FORMAT = 'dd/mm/yyyy';
   SYS_DATETIME_FORMAT = 'dd/mm/yyyy hh:nn';
   SYS_MONEY_FORMAT = '#,##0.00';
