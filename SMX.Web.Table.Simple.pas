@@ -9,14 +9,18 @@ uses
 
 type
 
-  // TsmCell = record
-  // Data: string;
-  // ClassNames: string;
-  // end;
-  //
-  //TBodyData = class(TList<TsmCell>);
+   TCellData = class
+   Data: string;
+   ClassNames: string;
+   end;
 
-  TBodyData = class(TList<string>);
+  TRowData = class(TObjectList<TCellData>);
+  TBodyData = class(TObjectList<TRowData>);
+
+  //TBodyData = class(TList<string>);
+
+  //FData holds a list of Rows so FData[0] is the first body row of the table
+  //so FData[0] returns a TRowData object which is a list of TCellData so FData[0][0] returns the top left cell
 
   TsmwSimpleTable = class
   private
@@ -24,7 +28,7 @@ type
     FTableId: string;
     FCols: Integer;
     FRows: Integer;
-    FData: TObjectList<TBodyData>;
+    FData: TBodyData;
     FTitles: TStrings;
     FTitle: string;
     function GetTableClass: string;
@@ -35,7 +39,7 @@ type
     constructor Create(const ARows, ACols: Integer; const ATableId, ATableClass: string);
     destructor Destroy; override;
     function Table: string;
-    procedure AddCell(const ARow, ACol: Integer; const AData: string);
+    procedure AddCell(const ARow, ACol: Integer; const AData: string; const AClassNames: string = '');
     property Titles: TStrings read FTitles;
     property Title: string read FTitle write FTitle;
     property Cell[const ARow, ACol: Integer]: string read GetCell write SetCell;
@@ -43,49 +47,55 @@ type
 
 implementation
 
+uses system.StrUtils;
+
 { TsmwSimpleTable }
 
-procedure TsmwSimpleTable.AddCell(const ARow, ACol: Integer; const AData: string);
+procedure TsmwSimpleTable.AddCell(const ARow, ACol: Integer; const AData:
+    string; const AClassNames: string = '');
 var
   Index: Integer;
-  lBodyData: TBodyData;
+  lBodyData: TRowData;
 begin
   lBodyData := FData[ARow];
-  lBodyData[ACol] := AData;
+  lBodyData[ACol].Data := AData;
+  lBodyData[ACol].ClassNames := IfThen(AClassNames <> '', ' ') + AClassNames;
 end;
 
 constructor TsmwSimpleTable.Create(const ARows, ACols: Integer; const ATableId, ATableClass: string);
 var
   I, J: Integer;
   lBodyData: TBodyData;
+  lRowData: TRowData;
 begin
   FRows := ARows;
   FCols := ACols;
   FTableClass := ATableClass;
   FTableId := ATableId;
   FTitles := TStringList.Create;
-  FData := TObjectList<TBodyData>.Create(True);
+  FData := TBodyData.Create(True);
   for I := 0 to FRows - 1 do
   begin
-    lBodyData := TBodyData.Create;
+    lRowData := TRowData.Create(True);
     for J := 0 to FCols - 1 do
-      lBodyData.Add('');
-    FData.Add(lBodyData);
+      lRowData.Add(TCellData.Create);
+    FData.Add(lRowData);
   end;
 end;
 
 destructor TsmwSimpleTable.Destroy;
 begin
   FTitles.Free;
+  FData.Free;
   inherited;
 end;
 
 function TsmwSimpleTable.GetCell(const ARow, ACol: Integer): string;
 var
-  lBodyData: TBodyData;
+  lRowData: TRowData;
 begin
-  lBodyData := FData[ARow];
-  Result := lBodyData[ACol];
+  lRowData := FData[ARow];
+  Result := lRowData[ACol].Data;
 end;
 
 function TsmwSimpleTable.GetTableClass: string;
@@ -106,17 +116,17 @@ end;
 
 procedure TsmwSimpleTable.SetCell(const ARow, ACol: Integer; const Value: string);
 var
-  lBodyData: TBodyData;
+  lRowData: TRowData;
 begin
-  lBodyData := FData[ARow];
-  lBodyData[ACol] := Value;
+  lRowData := FData[ARow];
+  lRowData[ACol].Data := Value;
 end;
 
 function TsmwSimpleTable.Table: string;
 var
   I: Integer;
   J: Integer;
-  lBodyData: TBodyData;
+  lRowData: TRowData;
 begin
   Result := '<table' + GetTableId + ' class="smwtable' + GetTableClass + '">'#10;
 
@@ -141,10 +151,10 @@ begin
   for I := 0 to FRows - 1 do
   begin
     Result := Result + '<tr>';
-    lBodyData := FData[I];
+    lRowData := FData[I];
     for J := 0 to FCols - 1 do
     begin
-      Result := Result + format('<td class="td-col-%d">%s</td>', [J, lBodyData[J]]);
+      Result := Result + format('<td class="td-col-%d%s">%s</td>', [J, lRowData[J].ClassNames, lRowData[J].Data]);
     end;
     Result := Result + '</tr>'#10;
   end;
