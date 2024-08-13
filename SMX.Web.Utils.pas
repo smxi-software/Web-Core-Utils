@@ -18,15 +18,16 @@ type
     class function DayWithOrdinal(const Value: Word): string; overload;
     class function DayWithOrdinal(const ADate: TDateTime): string; overload;
     class function PrettyDate(const ADate: TDateTime; const AddYear: Boolean = False): string;
-    class function PrettyDateRange(const FromDate, ToDate: TDateTime; const
-        AddYear: Boolean = True; const ToText: string = 'to'): string;
+    class function PrettyDateRange(const FromDate, ToDate: TDateTime; const AddYear: Boolean = True;
+      const ToText: string = 'to'): string;
+    class function IsPhoneNumberValid(const Value: string): Boolean;
   end;
 
-  function IncResult(var Value: Integer; const increment: integer = 1): Integer;
+function IncResult(var Value: Integer; const increment: Integer = 1): Integer;
 
 const
   YesNo: array [Boolean] of string = ('No', 'Yes');
-  YesNoIdx: array [Boolean] of integer = (0, 1);
+  YesNoIdx: array [Boolean] of Integer = (0, 1);
 
   SYS_DATE_FORMAT = 'dd/mm/yyyy';
   SYS_DATETIME_FORMAT = 'dd/mm/yyyy hh:nn';
@@ -50,7 +51,7 @@ uses
   System.SysUtils,
   System.DateUtils;
 
-function IncResult(var Value: Integer; const increment: integer = 1): Integer;
+function IncResult(var Value: Integer; const increment: Integer = 1): Integer;
 begin
   Inc(Value, increment);
   Result := Value;
@@ -62,7 +63,7 @@ class function TWebUtils.CapitaliseFirstLetter(const Value: string): string;
 begin
   if Value = '' then
     Exit('');
-  result := Value.Substring(0, 1).ToUpper + Value.Substring(1).ToLower;
+  Result := Value.Substring(0, 1).ToUpper + Value.Substring(1).ToLower;
 end;
 
 class function TWebUtils.CapitaliseWords(const Value: string): string;
@@ -71,97 +72,118 @@ var
   lWords: TArray<string>;
 begin
 
-  result := '';
+  Result := '';
   lWords := Value.Split(smWordDelimiters);
   for lWord in lWords do
   begin
     if lWord = '' then
       Continue;
-    result := result + lWord.Substring(0, 1).ToUpper + lWord.Substring(1).ToLower + ' ';
+    Result := Result + lWord.Substring(0, 1).ToUpper + lWord.Substring(1).ToLower + ' ';
   end;
 
-  result := result.TrimRight;
+  Result := Result.TrimRight;
 end;
 
 class function TWebUtils.ConCat(Value: array of string; const ADelim: string): string;
 var
   i: Integer;
 begin
-  result := '';
+  Result := '';
   for i := 0 to Length(Value) - 1 do
   begin
     if Value[i] <> '' then
-      result := result + Value[i] + ADelim;
+      Result := Result + Value[i] + ADelim;
   end;
-  result := result.Substring(0, result.Length - ADelim.Length);
+  Result := Result.Substring(0, Result.Length - ADelim.Length);
 end;
 
 class function TWebUtils.DayWithOrdinal(const Value: Word): string;
 begin
   case Value of
     1, 21, 31:
-      result := Value.ToString + 'st';
+      Result := Value.ToString + 'st';
     2, 22:
-      result := Value.ToString + 'nd';
+      Result := Value.ToString + 'nd';
     3, 23:
-      result := Value.ToString + 'rd';
+      Result := Value.ToString + 'rd';
   else
-    result := Value.ToString + 'th';
+    Result := Value.ToString + 'th';
   end;
 end;
 
 class function TWebUtils.DayWithOrdinal(const ADate: TDateTime): string;
 begin
-  result := DayWithOrdinal(DayOf(ADate));
+  Result := DayWithOrdinal(DayOf(ADate));
 end;
 
 class function TWebUtils.IsInteger(const Value: string): Boolean;
 var
   v: Integer;
 begin
-  result := TryStrToInt(Value, v);
+  Result := TryStrToInt(Value, v);
 end;
 
 class function TWebUtils.IsNumber(const Value: string): Boolean;
 var
   v: Double;
 begin
-  result := TryStrToFloat(Value, v);
+  Result := TryStrToFloat(Value, v);
+end;
+
+class function TWebUtils.IsPhoneNumberValid(const Value: string): Boolean;
+var
+  i: Integer;
+  C: Char;
+begin
+  for i := 0 to Value.Length - 1 do
+  begin
+    C := Value.Chars[i];
+    if not (C in ['0'..'9', ' ', '-', '+']) then
+      Exit(False);
+  end;
+
+  if Value.CountChar('+') > 1 then
+     Exit(False);
+
+  if Value.IndexOf('+') > 0 then
+     Exit(False);
+
+  Result := True;
+
 end;
 
 class function TWebUtils.PrettyDate(const ADate: TDateTime; const AddYear: Boolean): string;
 begin
-  result := DayWithOrdinal(ADate) + ' ' + FormatSettings.ShortMonthNames[MonthOf(ADate)];
+  Result := DayWithOrdinal(ADate) + ' ' + FormatSettings.ShortMonthNames[MonthOf(ADate)];
   if AddYear then
-    result := result + ' ' + YearOf(ADate).ToString;
+    Result := Result + ' ' + YearOf(ADate).ToString;
 end;
 
-class function TWebUtils.PrettyDateRange(const FromDate, ToDate: TDateTime;
-  const AddYear: Boolean; const ToText: string): string;
-var FY,FM,FD, TY,TM,TD: Word;
+class function TWebUtils.PrettyDateRange(const FromDate, ToDate: TDateTime; const AddYear: Boolean;
+  const ToText: string): string;
+var
+  FY, FM, FD, TY, TM, TD: Word;
 begin
-  DecodeDate(FromDate, FY,FM,FD);
-  DecodeDate(ToDate, TY,TM,TD);
+  DecodeDate(FromDate, FY, FM, FD);
+  DecodeDate(ToDate, TY, TM, TD);
 
   if FY = TY then
   begin
     Result := DayWithOrdinal(FD) + ' ';
     if FM = TM then
-       Result := Result + ToText + ' ' + DayWithOrdinal(TD) + ' ' + FormatSettings.LongMonthNames[TM]
+      Result := Result + ToText + ' ' + DayWithOrdinal(TD) + ' ' + FormatSettings.LongMonthNames[TM]
     else
-       Result := Result + FormatSettings.LongMonthNames[FM] + ' ' + ToText + ' ' +
-          DayWithOrdinal(TD) + ' ' + FormatSettings.LongMonthNames[TM];
+      Result := Result + FormatSettings.LongMonthNames[FM] + ' ' + ToText + ' ' + DayWithOrdinal(TD) + ' ' +
+        FormatSettings.LongMonthNames[TM];
 
     if AddYear then
-       Result := Result + ' ' + TY.ToString;
-
+      Result := Result + ' ' + TY.ToString;
 
   end
   else
   begin
-    Result := DayWithOrdinal(FD) + ' ' + FormatSettings.LongMonthNames[FM] + ' ' +
-      FY.ToString + ' ' + ToText + ' ' + DayWithOrdinal(TD) + ' ' + FormatSettings.LongMonthNames[TM] + ' ' +
-      TY.ToString;
+    Result := DayWithOrdinal(FD) + ' ' + FormatSettings.LongMonthNames[FM] + ' ' + FY.ToString + ' ' + ToText + ' ' +
+      DayWithOrdinal(TD) + ' ' + FormatSettings.LongMonthNames[TM] + ' ' + TY.ToString;
   end;
 end;
 
@@ -170,9 +192,9 @@ var
   lTime: TDateTime;
 begin
   lTime := IncSecond(0.0, ASeconds);
-  result := FormatDateTime('hh:nn:ss', lTime);
+  Result := FormatDateTime('hh:nn:ss', lTime);
   if lTime >= 1 then
-    result := Trunc(lTime).ToString + 'days ' + result;
+    Result := Trunc(lTime).ToString + 'days ' + Result;
 end;
 
 class function TWebUtils.SplitOnCaps(const Value: string): string;
@@ -183,16 +205,16 @@ begin
   if Value.Length < 4 then
     Exit(Value);
 
-  result := Value.Chars[0];
+  Result := Value.Chars[0];
   if Value.Length = 1 then
     Exit;
   for i := 1 to Value.Length - 1 do
   begin
     c := Value.Chars[i];
     if (c in ['A' .. 'Z']) then
-      result := result + ' ' + c
+      Result := Result + ' ' + c
     else
-      result := result + c;
+      Result := Result + c;
   end;
 end;
 
