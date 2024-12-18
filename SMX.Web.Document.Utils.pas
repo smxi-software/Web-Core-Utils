@@ -1,12 +1,12 @@
-unit SMX.Web.Document.Utils;
+Unit SMX.Web.Document.Utils;
 
-interface
+Interface
 
-uses
+Uses
   System.Classes,
   System.SysUtils;
 
-type
+Type
 
   TwebValidityState = (vsValid, vsInvalid, vsVoid, vsNone);
 
@@ -14,77 +14,82 @@ type
     witMonth, witNumber, witPassword, witRadio, witRange, witReset, witSearch, witSubmit, witTel, witText, witTime,
     witUrl, witWeek);
 
-  TDocUtils = class
-  public
+  TwebTextTransform = (ttNone, ttUppercase, ttLowercase, ttCapitalize, ttFullWidth, ttInherit, ttInitial, ttUnset);
 
-    class function stringsToUL(AStrings: TStrings; const AListClass: string = ''; AItemClass: string = ''): string;
+  TDocUtils = Class
+  Public
 
-    class procedure addClass(const aElementId: string; const AClassName: string);
-    class procedure removeClass(const aElementId: string; const AClassName: string);
-    class procedure setControlValidity(const aElementId: string; const aState: TwebValidityState);
-    class procedure hideElement(const aElementId: string);
-    class procedure showElement(const aElementId: string);
+    Class Function stringsToUL(AStrings: TStrings; Const AListClass: String = ''; AItemClass: String = ''): String;
 
-    class function elementHeight(const aElementId: string): integer;
-    class function elementWidth(const aElementId: string): integer;
-    class procedure writeHTML(const aElementId: string; const Value: string);
-    class procedure loadHTML(const aElementId: string; const URL: string);
-    class procedure appendHTML(const aElementId: string; const Value: string);
-    class procedure emptyDiv(const aElementId: string);
-    class function elementIdExists(const aElementId: string): Boolean;
-    class procedure setInputType(const aElementId: string; const aInputType: TwebInputType);
+    Class Procedure addClass(Const aElementId: String; Const AClassName: String);
+    Class Procedure removeClass(Const aElementId: String; Const AClassName: String);
+    Class Procedure setControlValidity(Const aElementId: String; Const aState: TwebValidityState);
+    Class Procedure hideElement(Const aElementId: String);
+    Class Procedure showElement(Const aElementId: String);
 
-    class function isCSSLinked(const aFileURL: string): Boolean;
+    Class Procedure setTextTransform(Const aElementId: String; Const transformStyle: TwebTextTransform);
+
+    Class Function elementHeight(Const aElementId: String): integer;
+    Class Function elementWidth(Const aElementId: String): integer;
+    Class Procedure writeHTML(Const aElementId: String; Const Value: String);
+    Class Procedure loadHTML(Const aElementId: String; Const URL: String);
+    Class Procedure appendHTML(Const aElementId: String; Const Value: String);
+    Class Procedure emptyDiv(Const aElementId: String);
+    Class Function elementIdExists(Const aElementId: String): Boolean;
+    Class Procedure setInputType(Const aElementId: String; Const aInputType: TwebInputType);
+
+    Class Function isCSSLinked(Const aFileURL: String): Boolean;
     /// <summary>
     /// The TMS WebCore Application object now has InsertCSS and RemoveCSS,
     /// so probably better to move to that
     /// </summary>
-    class procedure addCSSFile(const aFileURL: string);
+    Class Procedure addCSSFile(Const aFileURL: String);
 
-    class function isScriptLinked(const aFileURL: string): Boolean;
-    class procedure addScriptFile(const aFileURL: string);
+    Class Function isScriptLinked(Const aFileURL: String): Boolean;
+    Class Procedure addScriptFile(Const aFileURL: String);
 
-    class procedure writeImageSrc(const aElementId, aImageURL: string);
-    class procedure pushState(const AURL: string; const ATitle: string =
-        'unused'; const AState: string = '{}');
-    class procedure replaceState(const AURL: string; const ATitle: string =
-        'unused'; const AState: string = '{}');
-  end;
+    Class Procedure writeImageSrc(Const aElementId, aImageURL: String);
+    Class Procedure pushState(Const AURL: String; Const ATitle: String = 'unused'; Const aState: String = '{}');
+    // '{}');
+    Class Procedure replaceState(Const AURL: String; Const ATitle: String = 'unused'; Const aState: String = '{}');
+    // '{}');
+  End;
 
-const
-  Valid_Check: array [Boolean] of TwebValidityState = (vsInvalid, vsValid);
-  Alt_Valid_Check: array [Boolean] of TwebValidityState = (vsInvalid, vsNone);
+Const
+  Valid_Check: Array [Boolean] Of TwebValidityState = (vsInvalid, vsValid);
+  Alt_Valid_Check: Array [Boolean] Of TwebValidityState = (vsInvalid, vsNone);
 
-implementation
+Implementation
 
-uses
+Uses
   System.Rtti,
   WebLib.Forms;
 
-const
+Const
 
-  validity_class_map: array [TwebValidityState] of string = ('is-valid', 'is-invalid', 'is-void', 'is-none');
+  validity_class_map: Array [TwebValidityState] Of String = ('is-valid', 'is-invalid', 'is-void', 'is-none');
 
-  input_type_map: array [TwebInputType] of string = ('button', 'checkbox', 'color', 'date', 'datetime - local', 'email',
+  input_type_map: Array [TwebInputType] Of String = ('button', 'checkbox', 'color', 'date', 'datetime - local', 'email',
     'file', 'hidden', 'image', 'month', 'number', 'password', 'radio', 'range', 'reset', 'search', 'submit', 'tel',
     'text', 'time', 'url', 'week');
 
-  { THTMLHelper }
+  transform_type_map: Array [TwebTextTransform] Of String = ('none', 'uppercase', 'lowercase', 'capitalize',
+    'full-width', 'inherit', 'initial', 'unset');
 
 {$HINTS OFF}
 
-class procedure TDocUtils.addClass(const aElementId, AClassName: string);
-begin
+Class Procedure TDocUtils.addClass(Const aElementId, AClassName: String);
+Begin
 {$IFDEF PAS2JS}
   asm
     $("#" + aElementId).addClass(AClassName);
   end;
 {$ENDIF}
-end;
+End;
 
-class procedure TDocUtils.addCSSFile(const aFileURL: string);
-begin
-  if isCSSLinked(aFileURL) then
+Class Procedure TDocUtils.addCSSFile(Const aFileURL: String);
+Begin
+  If isCSSLinked(aFileURL) Then
     Exit;
 
 {$IFDEF PAS2JS}
@@ -103,17 +108,17 @@ begin
     document.getElementsByTagName('HEAD')[0].appendChild(link);
   end;
 {$ENDIF}
-end;
+End;
 
-class procedure TDocUtils.addScriptFile(const aFileURL: string);
-begin
-  if isScriptLinked(aFileURL) then
+Class Procedure TDocUtils.addScriptFile(Const aFileURL: String);
+Begin
+  If isScriptLinked(aFileURL) Then
     Exit;
 
-end;
+End;
 
-class procedure TDocUtils.appendHTML(const aElementId, Value: string);
-begin
+Class Procedure TDocUtils.appendHTML(Const aElementId, Value: String);
+Begin
 {$IFDEF PAS2JS}
   asm
     var Doc = document.getElementById(aElementId);
@@ -122,37 +127,37 @@ begin
      }
   end;
 {$ENDIF}
-end;
+End;
 
-class function TDocUtils.elementHeight(const aElementId: string): integer;
-begin
+Class Function TDocUtils.elementHeight(Const aElementId: String): integer;
+Begin
 {$IFDEF PAS2JS}
   asm
     Result = parseInt($("#" + aElementId).height());
   end;
 {$ENDIF}
-end;
+End;
 
-class function TDocUtils.elementIdExists(const aElementId: string): Boolean;
-begin
+Class Function TDocUtils.elementIdExists(Const aElementId: String): Boolean;
+Begin
 {$IFDEF PAS2JS}
   asm
     return (document.getElementById("#" + aElementId) !== null);
   end;
 {$ENDIF}
-end;
+End;
 
-class function TDocUtils.elementWidth(const aElementId: string): integer;
-begin
+Class Function TDocUtils.elementWidth(Const aElementId: String): integer;
+Begin
 {$IFDEF PAS2JS}
   asm
     Result = parseInt($("#" + aElementId).width());
   end;
 {$ENDIF}
-end;
+End;
 
-class procedure TDocUtils.emptyDiv(const aElementId: string);
-begin
+Class Procedure TDocUtils.emptyDiv(Const aElementId: String);
+Begin
 {$IFDEF PAS2JS}
   asm
     var Doc = document.getElementById(aElementId);
@@ -161,29 +166,29 @@ begin
      }
   end;
 {$ENDIF}
-end;
+End;
 
-class procedure TDocUtils.hideElement(const aElementId: string);
-begin
+Class Procedure TDocUtils.hideElement(Const aElementId: String);
+Begin
 {$IFDEF PAS2JS}
   asm
     $("#" + aElementId).hide();
   end;
 {$ENDIF}
-end;
+End;
 
-class function TDocUtils.isCSSLinked(const aFileURL: string): Boolean;
-begin
+Class Function TDocUtils.isCSSLinked(Const aFileURL: String): Boolean;
+Begin
 {$IFDEF PAS2JS}
   asm
     var linkEl = document.head.querySelector('link[href*="' + aFileURL + '"]');
     return Boolean(linkEl.sheet);
   end;
 {$ENDIF}
-end;
+End;
 
-class function TDocUtils.isScriptLinked(const aFileURL: string): Boolean;
-begin
+Class Function TDocUtils.isScriptLinked(Const aFileURL: String): Boolean;
+Begin
 {$IFDEF PAS2JS}
   asm
     const found_in_resources = performance.getEntries()
@@ -194,64 +199,63 @@ begin
     return found_in_resources || found_in_script_tags;
   end;
 {$ENDIF}
-end;
+End;
 
-class procedure TDocUtils.loadHTML(const aElementId, URL: string);
-begin
+Class Procedure TDocUtils.loadHTML(Const aElementId, URL: String);
+Begin
 {$IFDEF PAS2JS}
   asm
     $("#" + aElementId).load(URL);
   end;
 {$ENDIF}
-end;
+End;
 
-class procedure TDocUtils.pushState(const AURL: string; const ATitle: string =
-    'unused'; const AState: string = '{}');
-begin
+Class Procedure TDocUtils.pushState(Const AURL: String; Const ATitle: String; Const aState: String); // '{}');
+Begin
 {$IFDEF PAS2JS}
   asm
-    history.pushState(AState, ATitle, AURL);
+    history.pushState(aState, ATitle, AURL);
   end;
 {$ENDIF}
-end;
+End;
 
-class procedure TDocUtils.removeClass(const aElementId, AClassName: string);
-begin
+Class Procedure TDocUtils.removeClass(Const aElementId, AClassName: String);
+Begin
 {$IFDEF PAS2JS}
   asm
     $("#" + aElementId).removeClass(AClassName);
   end;
 {$ENDIF}
-end;
+End;
 
-class procedure TDocUtils.replaceState(const AURL: string; const ATitle: string = 'unused'; const AState: string = '{}');
-begin
+Class Procedure TDocUtils.replaceState(Const AURL: String; Const ATitle: String; Const aState: String);
+Begin
 {$IFDEF PAS2JS}
   asm
-    history.replaceState(AState, ATitle, AURL);
+    history.replaceState(aState, ATitle, AURL);
   end;
 {$ENDIF}
-end;
+End;
 
-class procedure TDocUtils.setControlValidity(const aElementId: string; const aState: TwebValidityState);
-var
+Class Procedure TDocUtils.setControlValidity(Const aElementId: String; Const aState: TwebValidityState);
+Var
   lState: TwebValidityState;
-begin
-  for lState := low(TwebValidityState) to high(TwebValidityState) do
-  begin
-    if lState <> aState then
+Begin
+  For lState := Low(TwebValidityState) To High(TwebValidityState) Do
+  Begin
+    If lState <> aState Then
       removeClass(aElementId, validity_class_map[lState]);
-  end;
+  End;
 
-  if aState <> TwebValidityState.vsNone then
+  If aState <> TwebValidityState.vsNone Then
     addClass(aElementId, validity_class_map[aState]);
 
-end;
+End;
 
-class procedure TDocUtils.setInputType(const aElementId: string; const aInputType: TwebInputType);
-var
-  lInputType: string;
-begin
+Class Procedure TDocUtils.setInputType(Const aElementId: String; Const aInputType: TwebInputType);
+Var
+  lInputType: String;
+Begin
   lInputType := input_type_map[aInputType];
 {$IFDEF PAS2JS}
   asm
@@ -261,60 +265,76 @@ begin
      };
   end;
 {$ENDIF}
-end;
+End;
 
-class procedure TDocUtils.showElement(const aElementId: string);
-begin
+Class Procedure TDocUtils.setTextTransform(Const aElementId: String; Const transformStyle: TwebTextTransform);
+Var
+  lStyle: String;
+Begin
+  lStyle := transform_type_map[transformStyle];
+{$IFDEF PAS2JS}
+  asm
+    const element = document.getElementById(aElementId);
+
+    if (element.style.textTransform !== lStyle) {
+    element.style.textTransform = lStyle;
+     };
+  end;
+{$ENDIF}
+End;
+
+Class Procedure TDocUtils.showElement(Const aElementId: String);
+Begin
 {$IFDEF PAS2JS}
   asm
     $("#" + aElementId).show();
   end;
 {$ENDIF}
-end;
+End;
 
-class function TDocUtils.stringsToUL(AStrings: TStrings; const AListClass: string = '';
-  AItemClass: string = ''): string;
-var
+Class Function TDocUtils.stringsToUL(AStrings: TStrings; Const AListClass: String = '';
+  AItemClass: String = ''): String;
+Var
   I: integer;
-  lClass: string;
-begin
+  lClass: String;
+Begin
   Result := '';
 
-  if AItemClass <> '' then
+  If AItemClass <> '' Then
     lClass := format(' class="%s">', [AItemClass])
-  else
+  Else
     lClass := '>';
 
-  for I := 0 to AStrings.Count - 1 do
+  For I := 0 To AStrings.Count - 1 Do
     Result := Result + '<li' + lClass + AStrings[I] + '</li>';
 
-  if AListClass <> '' then
+  If AListClass <> '' Then
     lClass := format(' class="%s">', [AListClass])
-  else
+  Else
     lClass := '>';
 
   Result := '<ul' + lClass + Result + '</ul>';
-end;
+End;
 
-class procedure TDocUtils.writeHTML(const aElementId, Value: string);
-begin
+Class Procedure TDocUtils.writeHTML(Const aElementId, Value: String);
+Begin
 {$IFDEF PAS2JS}
   asm
     $("#" + aElementId).html(Value);
   end;
 {$ENDIF}
-end;
+End;
 
-class procedure TDocUtils.writeImageSrc(const aElementId, aImageURL: string);
-begin
+Class Procedure TDocUtils.writeImageSrc(Const aElementId, aImageURL: String);
+Begin
 {$IFDEF PAS2JS}
   asm
     var img
     $("#" + aElementId).attr("src", aImageURL);
   end;
 {$ENDIF}
-end;
+End;
 
 {$HINTS ON}
 
-end.
+End.

@@ -15,6 +15,7 @@ type
 
   TCRMUtils = class
     class function IsPostCode(const Value: string): TPostCodePart;
+    class function IsPostCodeValid(const Value: string): Boolean;
     class function FormatPostCode(const Value: string): string;
     class function FormattedAddress(const ADataset: TDataset; const ADelim: string): string;
     class function FullName(const ADataset: TDataset): string;
@@ -202,6 +203,11 @@ begin
   else
     result := pcFull;
 
+end;
+
+class function TCRMUtils.IsPostCodeValid(const Value: string): Boolean;
+begin
+  Result :=  IsPostCode(Value) = TPostCodePart.pcFull;
 end;
 
 class function TCRMUtils.ShortName(const ADataset: TDataset): string;
